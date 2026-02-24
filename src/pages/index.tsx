@@ -29,47 +29,51 @@ type PageProps = {
 
 const Area = styled(animated.div)`
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: 35vw 40vw 25vw;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-rows: minmax(280px, 40vh) minmax(220px, 30vh) minmax(220px, 30vh);
   grid-template-areas:
-    'first-project about-us about-us'
-    'three-projects three-projects three-projects'
-    'instagram instagram instagram';
+    'first-project first-project first-project about-us about-us about-us'
+    'first-project first-project first-project three-project-1 three-project-2 three-project-3'
+    'instagram instagram instagram instagram instagram instagram';
+  gap: ${(props) => props.theme.space[3]};
+  padding: ${(props) => props.theme.space[6]};
 
   @media (max-width: ${(props) => props.theme.breakpoints[3]}) {
-    grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: 35vw 30vw 30vw 25vw;
-
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(5, minmax(220px, 1fr));
     grid-template-areas:
-      'first-project first-project about-us about-us'
-      'three-projects three-projects three-projects three-projects'
-      'three-projects three-projects three-projects three-projects'
-      'instagram instagram instagram instagram';
-  }
-
-  @media (max-width: ${(props) => props.theme.breakpoints[1]}) {
-    grid-template-columns: repeat(2, 1fr);
-    grid-template-rows: repeat(5, 38vw);
-
-    grid-template-areas:
-      'first-project about-us'
-      'three-projects three-projects'
-      'three-projects three-projects'
-      'three-projects three-projects'
+      'first-project first-project'
+      'about-us about-us'
+      'three-project-1 three-project-2'
+      'three-project-3 three-project-3'
       'instagram instagram';
   }
 
-  @media (max-width: ${(props) => props.theme.breakpoints[0]}) {
+  @media (max-width: ${(props) => props.theme.breakpoints[1]}) {
     grid-template-columns: 1fr;
-    grid-template-rows: repeat(6, 50vw);
-
+    grid-template-rows: repeat(6, minmax(200px, 1fr));
     grid-template-areas:
       'first-project'
       'about-us'
-      'three-projects'
-      'three-projects'
-      'three-projects'
+      'three-project-1'
+      'three-project-2'
+      'three-project-3'
       'instagram';
+    padding: ${(props) => props.theme.space[4]};
+  }
+`
+
+const TileContent = styled.span`
+  display: flex;
+  flex-direction: column;
+  gap: ${(props) => props.theme.space[2]};
+
+  small {
+    font-size: ${(props) => props.theme.fontSizes[0]};
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.85;
+    font-weight: ${(props) => props.theme.fontWeights.normal};
   }
 `
 
@@ -81,15 +85,16 @@ const AboutUs = styled(GridItem)`
   grid-area: about-us;
 `
 
-const ThreeProjects = styled.div`
-  grid-area: three-projects;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+const ProjectOne = styled(GridItem)`
+  grid-area: three-project-1;
+`
 
-  @media (max-width: ${(props) => props.theme.breakpoints[1]}) {
-    grid-template-columns: 1fr;
-    grid-template-rows: 1fr 1fr 1fr;
-  }
+const ProjectTwo = styled(GridItem)`
+  grid-area: three-project-2;
+`
+
+const ProjectThree = styled(GridItem)`
+  grid-area: three-project-3;
 `
 
 const Instagram = styled(GridItem)`
@@ -98,9 +103,9 @@ const Instagram = styled(GridItem)`
 
 const Index: React.FunctionComponent<PageProps> = ({ data: { firstProject, threeProjects, aboutUs, instagram } }) => {
   const pageAnimation = useSpring({
-    config: config.slow,
-    from: { opacity: 0 },
-    to: { opacity: 1 },
+    config: config.default,
+    from: { opacity: 0, transform: 'translate3d(0, 18px, 0)' },
+    to: { opacity: 1, transform: 'translate3d(0, 0, 0)' },
   })
 
   return (
@@ -109,23 +114,45 @@ const Index: React.FunctionComponent<PageProps> = ({ data: { firstProject, three
       <Area style={pageAnimation}>
         <FirstProject to={firstProject.slug} aria-label={`View project "${firstProject.title}"`}>
           <Img fluid={firstProject.cover.childImageSharp.fluid} />
-          <span>{firstProject.title}</span>
+          <TileContent>
+            {firstProject.title}
+            <small>Featured Story</small>
+          </TileContent>
         </FirstProject>
         <AboutUs to="/about" aria-label="Visit my about page">
           <Img fluid={aboutUs.childImageSharp.fluid} />
-          <span>About</span>
+          <TileContent>
+            About
+            <small>Behind the Lens</small>
+          </TileContent>
         </AboutUs>
-        <ThreeProjects>
-          {threeProjects.nodes.map((project) => (
-            <GridItem to={project.slug} key={project.slug} aria-label={`View project "${project.title}"`}>
-              <Img fluid={project.cover.childImageSharp.fluid} />
-              <span>{project.title}</span>
-            </GridItem>
-          ))}
-        </ThreeProjects>
+        <ProjectOne to={threeProjects.nodes[0].slug} aria-label={`View project "${threeProjects.nodes[0].title}"`}>
+          <Img fluid={threeProjects.nodes[0].cover.childImageSharp.fluid} />
+          <TileContent>
+            {threeProjects.nodes[0].title}
+            <small>Latest Work</small>
+          </TileContent>
+        </ProjectOne>
+        <ProjectTwo to={threeProjects.nodes[1].slug} aria-label={`View project "${threeProjects.nodes[1].title}"`}>
+          <Img fluid={threeProjects.nodes[1].cover.childImageSharp.fluid} />
+          <TileContent>
+            {threeProjects.nodes[1].title}
+            <small>Curated Set</small>
+          </TileContent>
+        </ProjectTwo>
+        <ProjectThree to={threeProjects.nodes[2].slug} aria-label={`View project "${threeProjects.nodes[2].title}"`}>
+          <Img fluid={threeProjects.nodes[2].cover.childImageSharp.fluid} />
+          <TileContent>
+            {threeProjects.nodes[2].title}
+            <small>Visual Essay</small>
+          </TileContent>
+        </ProjectThree>
         <Instagram to="/instagram" aria-label="See my Instagram pictures">
           <Img fluid={instagram.childImageSharp.fluid} />
-          <span>Instagram</span>
+          <TileContent>
+            Instagram
+            <small>Daily Frames</small>
+          </TileContent>
         </Instagram>
       </Area>
     </Layout>
